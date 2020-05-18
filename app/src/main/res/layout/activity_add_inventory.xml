@@ -60,7 +60,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.9"
-            android:onClick="downloadData"
+            android:onClick="addInventory"
             android:text="Add" />
     </LinearLayout>
 

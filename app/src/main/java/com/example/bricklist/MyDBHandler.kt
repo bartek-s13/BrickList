@@ -58,7 +58,7 @@ class MyDBHandler(context: Context, name: String?,
     }
 
     fun getAllInventories():ArrayList<Inventory>{
-        val query = "SELECT * FROM INVENTORIES ORDER BY LASTACESSED"
+        val query = "SELECT * FROM INVENTORIES ORDER BY LastAccessed"
         val db = this.readableDatabase
         val inventories =  ArrayList<Inventory>()
         val cursor = db.rawQuery(query, null)        //The sort order
@@ -69,6 +69,7 @@ class MyDBHandler(context: Context, name: String?,
                 val active = Integer.parseInt((cursor.getString(2)))
                 val lastAccessed = Integer.parseInt((cursor.getString(3)))
                 val inventory = Inventory(id, name, active, lastAccessed)
+                println(inventory.name)
                 inventories.add(inventory)
             } while (cursor.moveToNext())
         }

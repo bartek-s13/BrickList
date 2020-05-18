@@ -2,15 +2,13 @@ package com.example.bricklist
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.PreferenceManager
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
-import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity() {
 
@@ -20,11 +18,12 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         readConfig()
-        val helper = MyDBHandler(this,null,null, 1)
-        helper.checkDB()
-        helper.test()
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
+
         setSupportActionBar(toolbar)
+
+        //listInventories()
     }
 
     fun readConfig(){
@@ -35,6 +34,30 @@ class MainActivity : BaseActivity() {
     fun addNewInventory(v: View){
         val intent = Intent(this, AddInventoryActivity::class.java)
         startActivity(intent)
+    }
+
+    fun listInventories(){
+        val helper = MyDBHandler(this,null,null, 1)
+        helper.checkDB()
+        val inventoryList = helper.getAllInventories()
+        for(i in inventoryList){
+            println(i.name)
+        }
+        //val inventoryList = ArrayList<Inventory>()
+        //inventoryList.add(Inventory(1234567890, "test próba próba", 1, 1))
+
+        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view_inventories)
+        val adapter = InventoriesAdapter(inventoryList)
+        val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
+        recyclerView.layoutManager = mLayoutManager
+        recyclerView.setItemAnimator(DefaultItemAnimator())
+        recyclerView.setAdapter(adapter)
+
+    }
+
+    override fun onResume() {
+        super.onResume()
+        listInventories()
     }
 
 }

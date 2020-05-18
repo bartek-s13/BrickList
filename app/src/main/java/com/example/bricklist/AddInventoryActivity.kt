@@ -79,6 +79,7 @@ class AddInventoryActivity : AppCompatActivity() {
         val code = findViewById<TextView>(R.id.code).getText().toString()
         val name = findViewById<TextView>(R.id.name).getText().toString()
         val inventory = Inventory(name, 1, 0)
+        dbHandler.addInventory(inventory)
         downloadData(code)
 
 
