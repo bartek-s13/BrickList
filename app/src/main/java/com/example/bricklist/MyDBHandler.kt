@@ -4,6 +4,11 @@ import android.content.Context
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
+import java.io.OutputStream
+import java.security.AccessController.getContext
 
 class MyDBHandler(context: Context, name: String?,
                   factory: SQLiteDatabase.CursorFactory?, version:Int):SQLiteOpenHelper(context, DATABASE_NAME, factory,
@@ -14,12 +19,18 @@ class MyDBHandler(context: Context, name: String?,
         private val DATABASE_NAME = "BrickList.db"
     }
 
+    var dbContext:Context
+
+    init{
+        this.dbContext = context
+
+    }
+
     override fun onCreate(db: SQLiteDatabase?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     fun addInventory(inventory: Inventory) {
@@ -92,5 +103,44 @@ class MyDBHandler(context: Context, name: String?,
         db.close()
         return inventoryParts
     }
+
+
+
+    fun checkDB(){
+        val DB_DESTINATION = "/data/data/com.example.bricklist/databases/BrickList.db";
+        val initialiseDatabase = (File(DB_DESTINATION)).exists()
+        println("sprawdzenie")
+        if (initialiseDatabase == false) {
+            println("instalacja")
+            val inputStream:InputStream = this.dbContext.assets.open("databases/BrickList.db")
+
+            try {
+                val outputFile = File(dbContext.getDatabasePath(DATABASE_NAME).path)
+                //val outputFile = File("/data/data/com.example.bricklist/databases/BrickList.db")
+                // val outputStream = FileOutputStream("/data/data/com.example.bricklist/databases/BrickList.db")
+                val outputStream = FileOutputStream(outputFile)
+                val buffer = ByteArray(1024)
+                var length: Int = 0
+                while (inputStream.read(buffer).also({ length = it }) > 0) {
+                    outputStream.write(buffer, 0, length)
+                }
+                outputStream.flush()
+                outputStream.close()
+                inputStream.close()
+            } catch (exception: Throwable) {
+                throw RuntimeException("The $DATABASE_NAME database couldn't be installed.", exception)
+            }
+        }
+    }
+
+    fun test(){
+        //val query = "SELECT * FROM Colors"
+        val db = this.readableDatabase
+        //val cursor = db.rawQuery(query, null)
+        //cursor.close()
+        db.close()
+    }
+
+
 
 }

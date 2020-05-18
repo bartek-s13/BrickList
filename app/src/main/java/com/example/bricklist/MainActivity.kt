@@ -20,6 +20,9 @@ class MainActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         readConfig()
+        val helper = MyDBHandler(this,null,null, 1)
+        helper.checkDB()
+        helper.test()
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
     }
