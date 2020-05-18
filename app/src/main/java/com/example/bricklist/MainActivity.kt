@@ -22,8 +22,9 @@ class MainActivity : BaseActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
 
         setSupportActionBar(toolbar)
+        this.setTitle("BrickList")
 
-        //listInventories()
+        listInventories()
     }
 
     fun readConfig(){
@@ -40,12 +41,6 @@ class MainActivity : BaseActivity() {
         val helper = MyDBHandler(this,null,null, 1)
         helper.checkDB()
         val inventoryList = helper.getAllInventories()
-        for(i in inventoryList){
-            println(i.name)
-        }
-        //val inventoryList = ArrayList<Inventory>()
-        //inventoryList.add(Inventory(1234567890, "test próba próba", 1, 1))
-
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view_inventories)
         val adapter = InventoriesAdapter(inventoryList)
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)

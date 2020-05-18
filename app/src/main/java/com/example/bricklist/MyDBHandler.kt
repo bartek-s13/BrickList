@@ -69,7 +69,7 @@ class MyDBHandler(context: Context, name: String?,
                 val active = Integer.parseInt((cursor.getString(2)))
                 val lastAccessed = Integer.parseInt((cursor.getString(3)))
                 val inventory = Inventory(id, name, active, lastAccessed)
-                println(inventory.name)
+
                 inventories.add(inventory)
             } while (cursor.moveToNext())
         }
@@ -110,9 +110,9 @@ class MyDBHandler(context: Context, name: String?,
     fun checkDB(){
         val DB_DESTINATION = "/data/data/com.example.bricklist/databases/BrickList.db";
         val initialiseDatabase = (File(DB_DESTINATION)).exists()
-        println("sprawdzenie")
+
         if (initialiseDatabase == false) {
-            println("instalacja")
+
             val inputStream:InputStream = this.dbContext.assets.open("databases/BrickList.db")
 
             try {
