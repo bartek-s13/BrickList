@@ -22,7 +22,7 @@ class MainActivity : BaseActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
 
         setSupportActionBar(toolbar)
-        this.setTitle("BrickList")
+        //this.setTitle("BrickList")
 
         listInventories()
     }

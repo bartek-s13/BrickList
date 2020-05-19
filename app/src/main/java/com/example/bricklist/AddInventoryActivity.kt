@@ -3,12 +3,18 @@ package com.example.bricklist
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.view.View
 import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_add_inventory.*
+import org.w3c.dom.Document
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+import org.w3c.dom.NodeList
 import java.io.*
 import java.net.MalformedURLException
 import java.net.URL
+import javax.xml.parsers.DocumentBuilderFactory
 
 class AddInventoryActivity : AppCompatActivity() {
 
@@ -53,16 +59,12 @@ class AddInventoryActivity : AppCompatActivity() {
                 }
                 isStream.close()
             }catch(e:MalformedURLException){
-                println("Malformed url")
                 return "Malformed url"
             }catch(e: FileNotFoundException){
-                println("File not found")
                 return "File not found"
             }catch(e:IOException){
-                println("Io Exception")
                 return "Io Exception"
             }
-            println("Succcess")
             return "Success"
         }
 
@@ -79,13 +81,35 @@ class AddInventoryActivity : AppCompatActivity() {
         val code = findViewById<TextView>(R.id.code).getText().toString()
         val name = findViewById<TextView>(R.id.name).getText().toString()
         val inventory = Inventory(name, 1, 0)
-        dbHandler.addInventory(inventory)
+        val inventoryID = dbHandler.addInventory(inventory)
         downloadData(code)
 
 
     }
 
-    fun parse_xml(path:String, fileName:String){
+    fun addParts(inventoryID: Int) {
+        val parts = ArrayList<InventoryPart>()
+        val filename = "inventory.xml"
+        val path = filesDir
+        val inDir = File(path, "XML")
+
+        if (inDir.exists()){
+            val file = File(inDir, filename)
+            if(file.exists()){
+                val xmlDoc : Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
+                val items: NodeList = xmlDoc.getElementsByTagName("item")
+                for( i in 0..items.length-1){
+                    val itemNode: Node = items.item(i)
+                    if(itemNode.getNodeType() == Node.ELEMENT_NODE){
+                        val elem = itemNode as Element
+                        val children = elem.childNodes
+                    }
+                }
+            }
+        }
+//TODO pobieranie zdjęcia
+
+
 
     }
 }

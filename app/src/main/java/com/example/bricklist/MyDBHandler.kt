@@ -43,7 +43,7 @@ class MyDBHandler(context: Context, name: String?,
         db.close()
     }
 
-    fun addInventoryPart(inventory: InventoryPart) {
+    fun addInventoryPart(inventory: InventoryPart): Long {
         val values = ContentValues()
         values.put("InventoryID", inventory.InventoryID)
         values.put("TypeID", inventory.TypeID)
@@ -53,8 +53,9 @@ class MyDBHandler(context: Context, name: String?,
         values.put("ColorID", inventory.ColorID)
         values.put("Extra", inventory.Extra)
         val db = this.writableDatabase
-        db.insert("InventoriesParts", null, values)
+        val id = db.insert("InventoriesParts", null, values)
         db.close()
+        return id
     }
 
     fun getAllInventories():ArrayList<Inventory>{
@@ -134,13 +135,35 @@ class MyDBHandler(context: Context, name: String?,
         }
     }
 
-    fun test(){
-        //val query = "SELECT * FROM Colors"
+
+    fun getTypeID(code:Int): Int{
+        val query = "SELECT id FROM ItemTypes WHERE Code = $code"
         val db = this.readableDatabase
-        //val cursor = db.rawQuery(query, null)
-        //cursor.close()
+        val TypeID : Int = 0
+        val cursor = db.rawQuery(query, null)        //The sort order
+        if (cursor.moveToFirst()) {
+            val TypeID = Integer.parseInt((cursor.getString(0)))
+        }
+        cursor.close()
         db.close()
+        return TypeID
     }
+
+    fun getItemID(code:Int): Int{
+        val query = "SELECT id FROM Parts WHERE Code = $code"
+        val db = this.readableDatabase
+        val ItemID : Int = 0
+        val cursor = db.rawQuery(query, null)        //The sort order
+        if (cursor.moveToFirst()) {
+            val ItemID = Integer.parseInt((cursor.getString(0)))
+        }
+        cursor.close()
+        db.close()
+        return ItemID
+    }
+
+
+
 
 
 

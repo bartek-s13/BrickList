@@ -24,4 +24,17 @@ class InventoryPart {
         this.Extra = Extra
 
     }
+
+
+    constructor(InventoryID: Int, TypeID: Int, ItemID:Int, QuantityInSet: Int,
+                ColorID: Int){
+
+        this.InventoryID = InventoryID
+        this.TypeID = TypeID
+        this.ItemID = ItemID
+        this.QuantityInSet = QuantityInSet
+        this.QuantityInStore = 0
+        this.ColorID = ColorID
+
+    }
 }

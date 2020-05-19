@@ -15,6 +15,7 @@ class InventoriesAdapter(private val mInventories: List<Inventory>) : RecyclerVi
 
     inner class ViewHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
         public val nameTextView = itemView.findViewById<TextView>(id.inventory_name)
+        //public val idTextView = itemView.findViewById<TextView>(id.inventory_id)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -33,6 +34,8 @@ class InventoriesAdapter(private val mInventories: List<Inventory>) : RecyclerVi
         val inventory: Inventory = mInventories.get(position)
         val textView: TextView = holder.nameTextView
         textView.setText(inventory.name)
+        //val idTextView: TextView = holder.idTextView
+        //idTextView.setText(inventory.id.toString())
 
     }
 }

@@ -13,9 +13,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:paddingLeft="16dp"
-        android:text="NAZWAZ"
-        android:textStyle="bold"/>
-
+        android:text="Inventory name"
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
 
 </LinearLayout>
