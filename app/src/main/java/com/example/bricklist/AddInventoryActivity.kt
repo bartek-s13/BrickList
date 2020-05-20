@@ -81,11 +81,11 @@ class AddInventoryActivity : AppCompatActivity() {
         val code = findViewById<TextView>(R.id.code).getText().toString()
         val name = findViewById<TextView>(R.id.name).getText().toString()
         val inventory = Inventory(name, 1, 0)
-        //val inventoryID = dbHandler.addInventory(inventory)
+        val inventoryID = dbHandler.addInventory(inventory)
 
         downloadData(code)
-
-        addParts(0)
+        //FIXME poprawić to bo fatalnie wygląda
+        addParts(inventoryID.toString().toInt())
 
     }
 
@@ -124,7 +124,7 @@ class AddInventoryActivity : AppCompatActivity() {
                         val itemTypeID = dbHandler.getTypeID(itemType)
                         val itemTableID = dbHandler.getItemID(itemID)
                         val part = InventoryPart(inventoryID, itemTypeID, itemTableID, quantityInSet, color)
-                        println("$inventoryID, $itemTypeID, $itemTableID, $quantityInSet, $color")
+
                     }
                 }
             }

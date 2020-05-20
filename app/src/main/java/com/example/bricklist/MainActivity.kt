@@ -42,7 +42,7 @@ class MainActivity : BaseActivity() {
         helper.checkDB()
         val inventoryList = helper.getAllInventories()
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view_inventories)
-        val adapter = InventoriesAdapter(inventoryList)
+        val adapter = InventoriesAdapter(inventoryList, { inventory : Inventory -> invenoryClicked(inventory) })
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
         recyclerView.layoutManager = mLayoutManager
         recyclerView.setItemAnimator(DefaultItemAnimator())
@@ -55,4 +55,10 @@ class MainActivity : BaseActivity() {
         listInventories()
     }
 
+    private fun invenoryClicked(inventory: Inventory){
+        val intent = Intent(this, InventoryActivity::class.java)
+        intent.putExtra("Name", inventory.name)
+        intent.putExtra("Id", inventory.id)
+        startActivity(intent)
+    }
 }
