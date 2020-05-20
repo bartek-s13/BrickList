@@ -81,34 +81,56 @@ class AddInventoryActivity : AppCompatActivity() {
         val code = findViewById<TextView>(R.id.code).getText().toString()
         val name = findViewById<TextView>(R.id.name).getText().toString()
         val inventory = Inventory(name, 1, 0)
-        val inventoryID = dbHandler.addInventory(inventory)
+        //val inventoryID = dbHandler.addInventory(inventory)
+
         downloadData(code)
 
+        addParts(0)
 
     }
 
     fun addParts(inventoryID: Int) {
-        val parts = ArrayList<InventoryPart>()
+
         val filename = "inventory.xml"
         val path = filesDir
         val inDir = File(path, "XML")
-
+        val dbHandler = MyDBHandler(this, null, null, 1)
         if (inDir.exists()){
             val file = File(inDir, filename)
             if(file.exists()){
                 val xmlDoc : Document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file)
-                val items: NodeList = xmlDoc.getElementsByTagName("item")
+                val items: NodeList = xmlDoc.getElementsByTagName("ITEM")
                 for( i in 0..items.length-1){
                     val itemNode: Node = items.item(i)
                     if(itemNode.getNodeType() == Node.ELEMENT_NODE){
                         val elem = itemNode as Element
                         val children = elem.childNodes
+                        var itemType: String = ""
+                        var itemID: String = ""
+                        var quantityInSet: Int = 0
+                        var color: Int = 0
+                        for (j in 0..children.length - 1){
+                            val node = children.item(j)
+                            if (node is Element){
+                                when (node.nodeName){
+                                    "ITEMTYPE" -> {itemType = node.textContent}
+                                    "ITEMID" -> {itemID = node.textContent}
+                                    "QTY" -> {quantityInSet = node.textContent.toInt()}
+                                    "COLOR" -> {color = node.textContent.toInt()}
+                                }
+                            }
+
+                        }
+                        val itemTypeID = dbHandler.getTypeID(itemType)
+                        val itemTableID = dbHandler.getItemID(itemID)
+                        val part = InventoryPart(inventoryID, itemTypeID, itemTableID, quantityInSet, color)
+                        println("$inventoryID, $itemTypeID, $itemTableID, $quantityInSet, $color")
                     }
                 }
             }
         }
 //TODO pobieranie zdjęcia
-
+        println("koniec funkcji")
 
 
     }

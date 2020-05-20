@@ -136,8 +136,8 @@ class MyDBHandler(context: Context, name: String?,
     }
 
 
-    fun getTypeID(code:Int): Int{
-        val query = "SELECT id FROM ItemTypes WHERE Code = $code"
+    fun getTypeID(code:String): Int{
+        val query = "SELECT id FROM ItemTypes WHERE Code = \"$code\""
         val db = this.readableDatabase
         val TypeID : Int = 0
         val cursor = db.rawQuery(query, null)        //The sort order
@@ -149,8 +149,8 @@ class MyDBHandler(context: Context, name: String?,
         return TypeID
     }
 
-    fun getItemID(code:Int): Int{
-        val query = "SELECT id FROM Parts WHERE Code = $code"
+    fun getItemID(code:String): Int{
+        val query = "SELECT id FROM Parts WHERE Code = \"$code\""
         val db = this.readableDatabase
         val ItemID : Int = 0
         val cursor = db.rawQuery(query, null)        //The sort order
