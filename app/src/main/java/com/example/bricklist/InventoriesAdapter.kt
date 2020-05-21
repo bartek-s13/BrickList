@@ -45,11 +45,8 @@ class InventoriesAdapter(private val mInventories: List<Inventory>, val clickLis
 
     override fun onBindViewHolder(holder: InventoriesAdapter.ViewHolder, position: Int) {
         val inventory: Inventory = mInventories.get(position)
-        //val textView: TextView = holder.nameTextView
-        //textView.setText(inventory.name)
         holder.bind(mInventories.get(position), clickListener)
-        //val idTextView: TextView = holder.idTextView
-        //idTextView.setText(inventory.id.toString())
+
 
     }
 }

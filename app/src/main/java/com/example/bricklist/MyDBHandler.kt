@@ -33,17 +33,18 @@ class MyDBHandler(context: Context, name: String?,
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
     }
 
-    fun addInventory(inventory: Inventory) {
+    fun addInventory(inventory: Inventory):Long {
         val values = ContentValues()
         values.put("Name", inventory.name)
         values.put("Active", inventory.active)
         values.put("LastAccessed", inventory.lastAccessed)
         val db = this.writableDatabase
-        db.insert("Inventories", null, values)
+        val id = db.insert("Inventories", null, values)
         db.close()
+        return id
     }
 
-    fun addInventoryPart(inventory: InventoryPart): Long {
+    fun addInventoryPart(inventory: InventoryPart) {
         val values = ContentValues()
         values.put("InventoryID", inventory.InventoryID)
         values.put("TypeID", inventory.TypeID)
@@ -53,9 +54,9 @@ class MyDBHandler(context: Context, name: String?,
         values.put("ColorID", inventory.ColorID)
         values.put("Extra", inventory.Extra)
         val db = this.writableDatabase
-        val id = db.insert("InventoriesParts", null, values)
+        db.insert("InventoriesParts", null, values)
         db.close()
-        return id
+
     }
 
     fun getAllInventories():ArrayList<Inventory>{
@@ -80,7 +81,7 @@ class MyDBHandler(context: Context, name: String?,
     }
 
     fun getInventoryParts(inventoryID:Int):ArrayList<InventoryPart>{
-        val query = "SELECT * FROM INVENTORIESPARTS WHERE ID = $inventoryID"
+        val query = "SELECT * FROM INVENTORIESPARTS WHERE InventoryID = $inventoryID"
         val db = this.readableDatabase
         val inventoryParts =  ArrayList<InventoryPart>()
         val cursor = db.rawQuery(query, null)        //The sort order
@@ -95,7 +96,6 @@ class MyDBHandler(context: Context, name: String?,
                 val QuantityInStore = Integer.parseInt((cursor.getString(5)))
                 val ColorID = Integer.parseInt((cursor.getString(6)))
                 val Extra = Integer.parseInt((cursor.getString(7)))
-
                 val inventoryPart = InventoryPart(id, InventoryID, TypeID,
                     ItemID, QuantityInSet, QuantityInStore, ColorID, Extra)
                 inventoryParts.add(inventoryPart)

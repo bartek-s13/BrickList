@@ -84,8 +84,8 @@ class AddInventoryActivity : AppCompatActivity() {
         val inventoryID = dbHandler.addInventory(inventory)
 
         downloadData(code)
-        //FIXME poprawić to bo fatalnie wygląda
-        addParts(inventoryID.toString().toInt())
+
+        addParts(inventoryID.toInt())
 
     }
 
@@ -125,6 +125,7 @@ class AddInventoryActivity : AppCompatActivity() {
                         val itemTableID = dbHandler.getItemID(itemID)
                         val part = InventoryPart(inventoryID, itemTypeID, itemTableID, quantityInSet, color)
 
+                        dbHandler.addInventoryPart(part)
                     }
                 }
             }

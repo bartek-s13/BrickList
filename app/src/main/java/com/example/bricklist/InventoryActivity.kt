@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 
 class InventoryActivity : AppCompatActivity() {
 
@@ -14,12 +17,13 @@ class InventoryActivity : AppCompatActivity() {
 
         val extras = intent.extras?: return
         val name = extras.getString("Name")
-        val code = extras.getInt("Id")
-        println(name)
+        val invenotryID= extras.getInt("Id")
+
         toolbar.setTitle(name)
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        listParts(invenotryID)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -30,5 +34,20 @@ class InventoryActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+
+    fun listParts(invenotryID: Int){
+        val helper = MyDBHandler(this,null,null, 1)
+        helper.checkDB()
+        val partsList = helper.getInventoryParts(invenotryID)
+        val recyclerView = findViewById<RecyclerView>(R.id.recycler_view_parts)
+        val adapter = PartsAdapter(partsList)
+        val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
+        recyclerView.layoutManager = mLayoutManager
+        recyclerView.setItemAnimator(DefaultItemAnimator())
+        recyclerView.setAdapter(adapter)
+        partsList.forEach{
+            println("item id: ${it.ItemID}")
+        }
+    }
 
 }
