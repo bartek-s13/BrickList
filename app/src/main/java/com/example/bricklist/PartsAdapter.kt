@@ -10,22 +10,25 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.Adapter<PartsAdapter.ViewHolder>()  {
-    inner class ViewHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
+    inner class ViewHolder(listItemView: View, context: Context) : RecyclerView.ViewHolder(listItemView) {
         public val nameTextView = itemView.findViewById<TextView>(R.id.name)
         public val colorTextView = itemView.findViewById<TextView>(R.id.color)
         public val qtyTextView = itemView.findViewById<TextView>(R.id.qty)
         val addButton = itemView.findViewById<Button>(R.id.add)
         val subButton = itemView.findViewById<Button>(R.id.sub)
-
+        val helper = MyDBHandler(context,null,null, 1)
 
 
         fun bind(part: InventoryPart)
         {
             // TODO pobieranie potrzebnych informacji
-            var testNumber = 0
-            nameTextView.setText("Nazwa klocka")
-            colorTextView.setText("Kolor klocka")
-            qtyTextView.setText("${testNumber}")
+
+            val name = helper.getPartName(part.ItemID)
+            val colorName = helper.getColorName(part.ColorID)
+
+            nameTextView.setText(name)
+            colorTextView.setText(colorName)
+            qtyTextView.setText("${part.QuantityInStore} of ${part.QuantityInSet}")
         }
 
     }
@@ -35,7 +38,7 @@ class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.A
         val inflater = LayoutInflater.from(context)
         val partView: View = inflater.inflate(R.layout.part_row, parent, false)
 
-        return ViewHolder(partView)
+        return ViewHolder(partView, context)
     }
 
     override fun getItemCount(): Int {

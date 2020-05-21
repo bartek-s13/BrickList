@@ -121,11 +121,16 @@ class AddInventoryActivity : AppCompatActivity() {
                             }
 
                         }
+                        println(itemType)
+                        println(itemID)
+                        // TODO komunikat o nie istnieniu klocka i sprawdzenie
                         val itemTypeID = dbHandler.getTypeID(itemType)
                         val itemTableID = dbHandler.getItemID(itemID)
-                        val part = InventoryPart(inventoryID, itemTypeID, itemTableID, quantityInSet, color)
+                        if(itemTypeID!= -1 && itemTableID != -1){
+                            val part = InventoryPart(inventoryID, itemTypeID, itemTableID, quantityInSet, color)
+                            dbHandler.addInventoryPart(part)
+                        }
 
-                        dbHandler.addInventoryPart(part)
                     }
                 }
             }

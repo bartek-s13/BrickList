@@ -137,34 +137,61 @@ class MyDBHandler(context: Context, name: String?,
 
 
     fun getTypeID(code:String): Int{
-        val query = "SELECT id FROM ItemTypes WHERE Code = \"$code\""
+        val query = "SELECT id FROM ItemTypes WHERE Code = \'$code\'"
         val db = this.readableDatabase
-        val TypeID : Int = 0
-        val cursor = db.rawQuery(query, null)        //The sort order
-        if (cursor.moveToFirst()) {
-            val TypeID = Integer.parseInt((cursor.getString(0)))
+        var TypeID = -1
+
+        val cursor = db.rawQuery(query, null)
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            TypeID = Integer.parseInt((cursor.getString(0)))
         }
+
+
         cursor.close()
         db.close()
         return TypeID
     }
 
     fun getItemID(code:String): Int{
-        val query = "SELECT id FROM Parts WHERE Code = \"$code\""
+        val query = "select id from Parts where Code = \'$code\'"
         val db = this.readableDatabase
-        val ItemID : Int = 0
-        val cursor = db.rawQuery(query, null)        //The sort order
-        if (cursor.moveToFirst()) {
-            val ItemID = Integer.parseInt((cursor.getString(0)))
+        var ItemID = -1
+        val cursor = db.rawQuery(query, null)
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            ItemID = Integer.parseInt((cursor.getString(0)))
         }
         cursor.close()
         db.close()
         return ItemID
     }
 
+    fun getColorName(colorId: Int):String{
+        //TODO polska nazwa
+        val query = "SELECT name FROM Colors WHERE id = $colorId"
+        val db = this.readableDatabase
+        var colorName : String = ""
+        val cursor = db.rawQuery(query, null)
+        if (cursor.moveToFirst()) {
+            colorName =cursor.getString(0)
+        }
+        cursor.close()
+        db.close()
+        return colorName
+    }
 
+    fun getPartName(itemID:Int):String{
 
-
+        val query = "SELECT name FROM Parts WHERE id= $itemID"
+        var name: String = ""
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+        if (cursor.moveToFirst()) {
+            name = cursor.getString(0)
+        }
+        cursor.close()
+        db.close()
+        return name
+    }
 
 
 }
