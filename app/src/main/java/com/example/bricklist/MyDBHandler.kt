@@ -44,15 +44,15 @@ class MyDBHandler(context: Context, name: String?,
         return id
     }
 
-    fun addInventoryPart(inventory: InventoryPart) {
+    fun addInventoryPart(part: InventoryPart) {
         val values = ContentValues()
-        values.put("InventoryID", inventory.InventoryID)
-        values.put("TypeID", inventory.TypeID)
-        values.put("ItemID", inventory.ItemID)
-        values.put("QuantityInSet", inventory.QuantityInSet)
-        values.put("QuantityInStore", inventory.QuantityInStore)
-        values.put("ColorID", inventory.ColorID)
-        values.put("Extra", inventory.Extra)
+        values.put("InventoryID", part.InventoryID)
+        values.put("TypeID", part.TypeID)
+        values.put("ItemID", part.ItemID)
+        values.put("QuantityInSet", part.QuantityInSet)
+        values.put("QuantityInStore", part.QuantityInStore)
+        values.put("ColorID", part.ColorID)
+        values.put("Extra", part.Extra)
         val db = this.writableDatabase
         db.insert("InventoriesParts", null, values)
         db.close()
@@ -191,6 +191,20 @@ class MyDBHandler(context: Context, name: String?,
         cursor.close()
         db.close()
         return name
+    }
+
+    fun updatePart(part:InventoryPart){
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put("InventoryID", part.InventoryID)
+        values.put("TypeID", part.TypeID)
+        values.put("ItemID", part.ItemID)
+        values.put("QuantityInSet", part.QuantityInSet)
+        values.put("QuantityInStore", part.QuantityInStore)
+        values.put("ColorID", part.ColorID)
+        values.put("Extra", part.Extra)
+        db.update("InventoriesParts", values, "id = " + part.id, null)
+        db.close()
     }
 
 

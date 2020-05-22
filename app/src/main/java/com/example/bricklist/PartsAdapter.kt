@@ -11,27 +11,29 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.Adapter<PartsAdapter.ViewHolder>()  {
+
+    lateinit var context: Context
+
     inner class ViewHolder(listItemView: View, context: Context) : RecyclerView.ViewHolder(listItemView) {
         public val nameTextView = itemView.findViewById<TextView>(R.id.name)
         public val colorTextView = itemView.findViewById<TextView>(R.id.color)
         public val qtyTextView = itemView.findViewById<TextView>(R.id.qty)
         val addButton = itemView.findViewById<Button>(R.id.add)
         val subButton = itemView.findViewById<Button>(R.id.sub)
-        val helper = MyDBHandler(context,null,null, 1)
 
 
-        fun bind(part: InventoryPart,qty:Int)
+
+        fun bind(name:String, colorName:String, qtyStore:Int, qtySet:Int)
         {
             // TODO pobieranie zdjęcia
 
-            val name = helper.getPartName(part.ItemID)
-            val colorName = helper.getColorName(part.ColorID)
+
 
             nameTextView.setText(name)
             colorTextView.setText(colorName)
-            qtyTextView.setText("${qty} of ${part.QuantityInSet}")
+            qtyTextView.setText("${qtyStore} of ${qtySet}")
 
-            if(qty == part.QuantityInSet){
+            if(qtySet == qtyStore){
                 qtyTextView.setTextColor(Color.GREEN)
             }
             else{
@@ -41,7 +43,7 @@ class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.A
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PartsAdapter.ViewHolder {
-        val context: Context = parent.context
+        this.context= parent.context
         val inflater = LayoutInflater.from(context)
         val partView: View = inflater.inflate(R.layout.part_row, parent, false)
         return ViewHolder(partView, context)
@@ -53,20 +55,25 @@ class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.A
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val part: InventoryPart = parts.get(position)
-        var qty = part.QuantityInStore
+        val helper = MyDBHandler(this.context,null,null, 1)
+        val name = helper.getPartName(part.ItemID)
+        val colorName = helper.getColorName(part.ColorID)
+
         holder.addButton.setOnClickListener{
-           if (qty<part.QuantityInSet) {
-               qty += 1
-               holder.bind(part, qty)
+           if (part.QuantityInStore<part.QuantityInSet) {
+               part.QuantityInStore += 1
+               helper.updatePart(part)
+               holder.bind(name, colorName, part.QuantityInStore, part.QuantityInSet)
            }
         }
         holder.subButton.setOnClickListener{
-            if(qty>0) {
-                qty-=1
-                holder.bind(part,qty)
+            if(part.QuantityInStore>0) {
+                part.QuantityInStore-=1
+                helper.updatePart(part)
+                holder.bind(name, colorName, part.QuantityInStore, part.QuantityInSet)
             }
         }
 
-        holder.bind(part,qty)
+        holder.bind(name, colorName, part.QuantityInStore, part.QuantityInSet)
     }
 }
