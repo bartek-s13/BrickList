@@ -26,14 +26,12 @@ class InventoriesAdapter(private val mInventories: List<Inventory>, val clickLis
                 clickListener(inventory)
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val context: Context = parent.context
         val inflater = LayoutInflater.from(context)
         val inventoryView: View = inflater.inflate(layout.inventory_row, parent, false)
-
         return ViewHolder(inventoryView)
     }
 
@@ -46,7 +44,5 @@ class InventoriesAdapter(private val mInventories: List<Inventory>, val clickLis
     override fun onBindViewHolder(holder: InventoriesAdapter.ViewHolder, position: Int) {
         val inventory: Inventory = mInventories.get(position)
         holder.bind(mInventories.get(position), clickListener)
-
-
     }
 }

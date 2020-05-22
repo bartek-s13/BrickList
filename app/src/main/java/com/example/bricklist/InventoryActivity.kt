@@ -45,9 +45,7 @@ class InventoryActivity : AppCompatActivity() {
         recyclerView.layoutManager = mLayoutManager
         recyclerView.setItemAnimator(DefaultItemAnimator())
         recyclerView.setAdapter(adapter)
-        partsList.forEach{
-            println("item id: ${it.ItemID}")
-        }
+
     }
 
 }
