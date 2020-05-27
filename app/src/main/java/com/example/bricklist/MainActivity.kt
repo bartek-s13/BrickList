@@ -6,6 +6,7 @@ import android.view.View
 import androidx.appcompat.widget.Toolbar
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -47,6 +48,8 @@ class MainActivity : BaseActivity() {
         recyclerView.layoutManager = mLayoutManager
         recyclerView.setItemAnimator(DefaultItemAnimator())
         recyclerView.setAdapter(adapter)
+        val itemSwipedLeftHelper = ItemTouchHelper(SwipeToArchiveCallback(this, adapter))
+        itemSwipedLeftHelper.attachToRecyclerView(recyclerView)
     }
 
     override fun onResume() {

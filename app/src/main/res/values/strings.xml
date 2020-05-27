@@ -26,4 +26,10 @@
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
     <string name="URL_prefix">http://fcds.cs.put.poznan.pl/MyWeb/BL/</string>
+
+
+    <string name="link1">https://www.lego.com/service/bricks/5/2/%s</string>
+    <string name ="link2">http://img.bricklink.com/P/%s/%s.jpg</string>
+    <string name="link3">https://www.bricklink.com/PL/%s.jpg</string>
+
 </resources>

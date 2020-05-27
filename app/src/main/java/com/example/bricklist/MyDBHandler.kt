@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import android.graphics.Bitmap
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -80,6 +81,27 @@ class MyDBHandler(context: Context, name: String?,
         return inventories
     }
 
+    fun getNotArchivedInventories():ArrayList<Inventory>{
+        val query = "SELECT * FROM INVENTORIES where active = 1 ORDER BY LastAccessed"
+        val db = this.readableDatabase
+        val inventories =  ArrayList<Inventory>()
+        val cursor = db.rawQuery(query, null)        //The sort order
+        if (cursor.moveToFirst()) {
+            do {
+                val id = Integer.parseInt((cursor.getString(0)))
+                val name =  cursor.getString(1)
+                val active = Integer.parseInt((cursor.getString(2)))
+                val lastAccessed = Integer.parseInt((cursor.getString(3)))
+                val inventory = Inventory(id, name, active, lastAccessed)
+
+                inventories.add(inventory)
+            } while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return inventories
+    }
+
     fun getInventoryParts(inventoryID:Int):ArrayList<InventoryPart>{
         val query = "SELECT * FROM INVENTORIESPARTS WHERE InventoryID = $inventoryID"
         val db = this.readableDatabase
@@ -118,8 +140,6 @@ class MyDBHandler(context: Context, name: String?,
 
             try {
                 val outputFile = File(dbContext.getDatabasePath(DATABASE_NAME).path)
-                //val outputFile = File("/data/data/com.example.bricklist/databases/BrickList.db")
-                // val outputStream = FileOutputStream("/data/data/com.example.bricklist/databases/BrickList.db")
                 val outputStream = FileOutputStream(outputFile)
                 val buffer = ByteArray(1024)
                 var length: Int = 0
@@ -208,4 +228,38 @@ class MyDBHandler(context: Context, name: String?,
     }
 
 
+
+    fun getPartCode(itemID:Int, colorId:Int):Int{
+        val query = "select code from Codes where ItemID = $itemID and ColorID = $colorId"
+        val db = this.readableDatabase
+        var code = -1
+        val cursor = db.rawQuery(query, null)
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            code = Integer.parseInt((cursor.getString(0)))
+        }
+        cursor.close()
+        db.close()
+        return code
+    }
+
+    fun addImage(image: ByteArray, code:Int){
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put("Image", image)
+        db.update("Codes", values, "code = " + code, null)
+        db.close()
+    }
+
+    fun getImage(code:Int):ByteArray?{
+        val query = "select image from Codes where code=$code"
+        val db = this.readableDatabase
+        var image:ByteArray? = null
+        val cursor = db.rawQuery(query, null)
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            image = cursor.getBlob(0)
+        }
+        cursor.close()
+        db.close()
+        return image
+    }
 }

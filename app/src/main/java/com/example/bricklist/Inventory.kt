@@ -3,7 +3,7 @@ package com.example.bricklist
 class Inventory {
     var id: Int = 0
     var name: String = ""
-    var active: Int = 0
+    var active: Int = 1
     var lastAccessed: Int = 0
 
     constructor(id:Int, name: String, active:Int, lastAccessed:Int){
@@ -18,5 +18,4 @@ class Inventory {
         this.active =active
         this.lastAccessed = lastAccessed
     }
-
 }

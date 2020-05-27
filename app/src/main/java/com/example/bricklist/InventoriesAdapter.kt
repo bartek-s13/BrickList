@@ -39,7 +39,9 @@ class InventoriesAdapter(private val mInventories: List<Inventory>, val clickLis
         return mInventories.size
     }
 
+    fun archive(position:Int){
 
+    }
 
     override fun onBindViewHolder(holder: InventoriesAdapter.ViewHolder, position: Int) {
         val inventory: Inventory = mInventories.get(position)
