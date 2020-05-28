@@ -5,11 +5,11 @@
         android:key="url_pref"
         android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:summary="@string/URL_prefix"
+        app:useSimpleSummaryProvider="true"
         android:title="Prefix of URL" />
-    <SwitchPreference
-        android:defaultValue="true"
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
         android:key="show_archived"
         android:summary="Show archived"
-        android:title="Archive" />
+        android:title="Show archived" />
 </PreferenceScreen>

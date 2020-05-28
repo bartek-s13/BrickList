@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.preference.PreferenceManager
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -41,8 +42,7 @@ class AddInventoryActivity : AppCompatActivity() {
 
         override fun doInBackground(vararg params: String?): String {
             try{
-                val prefix = getString(R.string.URL_prefix)
-                val url = URL(prefix+ params[0] +".xml")
+                val url = URL(params[0] +".xml")
                 val connection = url.openConnection()
                 connection.connect()
                 val lenghtOfFile = connection.contentLength
@@ -79,8 +79,11 @@ class AddInventoryActivity : AppCompatActivity() {
     }
 
     fun downloadData(code: String){
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+
+        val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
         val invd= InventoryDownloader()
-        invd.execute(code)
+        invd.execute(prefix+code)
     }
 
     fun addInventory(v:View){

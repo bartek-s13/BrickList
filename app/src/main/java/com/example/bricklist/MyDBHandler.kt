@@ -262,4 +262,15 @@ class MyDBHandler(context: Context, name: String?,
         db.close()
         return image
     }
+
+    fun updateInventory(inventory:Inventory){
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put("Id", inventory.id)
+        values.put("Name", inventory.name)
+        values.put("Active", inventory.active)
+        values.put("LastAccessed", inventory.lastAccessed)
+        db.update("Inventories", values,"id = ${inventory.id}" ,null)
+        db.close()
+    }
 }

@@ -6,22 +6,31 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.Button
 import android.widget.TextView
+import android.widget.ToggleButton
 import androidx.recyclerview.widget.RecyclerView
 import com.example.bricklist.R.id
 import com.example.bricklist.R.layout
 
 
-class InventoriesAdapter(private val mInventories: List<Inventory>, val clickListener: (Inventory) -> Unit) : RecyclerView.Adapter<InventoriesAdapter.ViewHolder>() {
+class InventoriesAdapter(private val mInventories: List<Inventory>, val clickListener: (Inventory) -> Unit, val context: Context) : RecyclerView.Adapter<InventoriesAdapter.ViewHolder>() {
 
-    inner class ViewHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
+
+    inner class ViewHolder(listItemView: View, context: Context) : RecyclerView.ViewHolder(listItemView) {
         public val nameTextView = itemView.findViewById<TextView>(id.inventory_name)
-        //public val idTextView = itemView.findViewById<TextView>(id.inventory_id)
+        public val archiveButton = itemView.findViewById<ToggleButton>(id.archiveButton)
 
 
         fun bind(inventory: Inventory,clickListener: (Inventory) -> Unit)
         {
+
             nameTextView.setText(inventory.name)
+            if(inventory.active == 1) {
+                archiveButton.setChecked(true)
+            }else{
+                archiveButton.setChecked(false)
+            }
             itemView.setOnClickListener {
                 clickListener(inventory)
             }
@@ -29,22 +38,27 @@ class InventoriesAdapter(private val mInventories: List<Inventory>, val clickLis
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val context: Context = parent.context
-        val inflater = LayoutInflater.from(context)
+
+        val inflater = LayoutInflater.from(parent.context)
         val inventoryView: View = inflater.inflate(layout.inventory_row, parent, false)
-        return ViewHolder(inventoryView)
+        return ViewHolder(inventoryView, parent.context )
     }
 
     override fun getItemCount(): Int {
         return mInventories.size
     }
 
-    fun archive(position:Int){
-
-    }
 
     override fun onBindViewHolder(holder: InventoriesAdapter.ViewHolder, position: Int) {
         val inventory: Inventory = mInventories.get(position)
+
+        holder.archiveButton.setOnClickListener{
+            inventory.active = - inventory.active
+            val helper = MyDBHandler(context,null,null, 1)
+            helper.updateInventory(inventory)
+            holder.bind(mInventories.get(position), clickListener)
+        }
+
         holder.bind(mInventories.get(position), clickListener)
     }
 }

@@ -11,11 +11,12 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import java.lang.Integer.max
 import java.lang.Integer.min
+import java.lang.Math.abs
 
 
 class SwipeToArchiveCallback(context: Context, adapter: InventoriesAdapter):ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT ){
 
-
+    val mAdapter = adapter
 
     override fun onMove(
         recyclerView: RecyclerView,
@@ -26,8 +27,7 @@ class SwipeToArchiveCallback(context: Context, adapter: InventoriesAdapter):Item
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        val position = viewHolder.getAdapterPosition()
-        println(position)
+
     }
 
     override fun onChildDraw(
@@ -50,7 +50,11 @@ class SwipeToArchiveCallback(context: Context, adapter: InventoriesAdapter):Item
         background.setBounds(itemView.right+max(dX.toInt(),(dX/3).toInt()), itemView.top,  itemView.right, itemView.bottom)
         background.color = Color.GRAY
         background.draw(c)
-
+        val x = itemView.width
+        if(kotlin.math.abs(dX) >= itemView.width){
+            //mAdapter.archive(viewHolder.adapterPosition)
+            println("archived")
+        }
         c.drawText(inbox, itemView.getRight().toFloat()-200.0f , itemView.bottom - (itemView.bottom - itemView.top-80)/2f, paint);
 
         super.onChildDraw(c, recyclerView, viewHolder, dX/3, dY, actionState, isCurrentlyActive)

@@ -26,11 +26,8 @@ class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.A
         val subButton = itemView.findViewById<Button>(R.id.sub)
 
 
-
         fun bind(name:String, colorName:String, qtyStore:Int, qtySet:Int, img: Bitmap?)
         {
-
-
             nameTextView.setText(name)
             colorTextView.setText(colorName)
             qtyTextView.setText("${qtyStore} of ${qtySet}")
