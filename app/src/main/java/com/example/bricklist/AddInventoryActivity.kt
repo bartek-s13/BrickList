@@ -10,6 +10,7 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import org.w3c.dom.Document
@@ -22,6 +23,8 @@ import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
 import java.nio.ByteBuffer
+import java.nio.file.Files
+import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 
 
@@ -81,22 +84,45 @@ class AddInventoryActivity : AppCompatActivity() {
 
     fun downloadData(code: String){
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-
         val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
         val invd= InventoryDownloader()
-        invd.execute(prefix+code)
+        val x = invd.execute(prefix+code)
+
     }
+
+    fun checkInventoryExists(code:String):Boolean{
+        try {
+            HttpURLConnection.setFollowRedirects(false);
+            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+            val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
+            val url = URL(prefix + code +".xml")
+            val con =  url.openConnection() as HttpURLConnection
+            con.setRequestMethod("HEAD");
+            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+        }
+        catch (e:Exception) {
+            val toast = Toast.makeText(applicationContext, "Wrong URL", Toast.LENGTH_LONG)
+            toast.show()
+            return false;
+        }
+    }
+
+
+
 
     fun addInventory(v:View){
         val dbHandler = MyDBHandler(this, null, null, 1)
         val code = findViewById<TextView>(R.id.code).getText().toString()
         val name = findViewById<TextView>(R.id.name).getText().toString()
+        if(checkInventoryExists(code)){
         val inventory = Inventory(name, 1, 0)
         val inventoryID = dbHandler.addInventory(inventory)
 
         downloadData(code)
 
+
         val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
+
         if(notAdded.size > 0 ){
             val builder = AlertDialog.Builder(this)
             builder.setTitle("These parts could not be added:")
@@ -106,14 +132,12 @@ class AddInventoryActivity : AppCompatActivity() {
                 finish()
             }
 
-
-
             val dialog = builder.create()
             dialog.show()
         }else{
             finish()
         }
-
+        }
     }
 
     fun addParts(inventoryID: Int):ArrayList<String> {
@@ -166,8 +190,14 @@ class AddInventoryActivity : AppCompatActivity() {
 
                     }
                 }
+                File("$filesDir/XML").deleteRecursively()
+            }
+            else{
+                val toast = Toast.makeText(applicationContext, "Project could not be added", Toast.LENGTH_LONG)
+                toast.show()
             }
         }
+
         return notAddedParts
     }
 
