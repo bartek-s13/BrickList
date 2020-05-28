@@ -14,13 +14,13 @@ import com.example.bricklist.R.id
 import com.example.bricklist.R.layout
 
 
-class InventoriesAdapter(private val mInventories: List<Inventory>, val clickListener: (Inventory) -> Unit, val context: Context) : RecyclerView.Adapter<InventoriesAdapter.ViewHolder>() {
+class InventoriesAdapter(var mInventories: ArrayList<Inventory>, val clickListener: (Inventory) -> Unit, val context: Context, archived:Boolean) : RecyclerView.Adapter<InventoriesAdapter.ViewHolder>() {
 
-
-    inner class ViewHolder(listItemView: View, context: Context) : RecyclerView.ViewHolder(listItemView) {
+    val mArchived = archived
+    inner class ViewHolder(listItemView: View, context: Context, adapter:InventoriesAdapter) : RecyclerView.ViewHolder(listItemView) {
         public val nameTextView = itemView.findViewById<TextView>(id.inventory_name)
         public val archiveButton = itemView.findViewById<ToggleButton>(id.archiveButton)
-
+        val mAdapter = adapter
 
         fun bind(inventory: Inventory,clickListener: (Inventory) -> Unit)
         {
@@ -28,8 +28,10 @@ class InventoriesAdapter(private val mInventories: List<Inventory>, val clickLis
             nameTextView.setText(inventory.name)
             if(inventory.active == 1) {
                 archiveButton.setChecked(true)
+                //mAdapter.notifyDataSetChanged()
             }else{
                 archiveButton.setChecked(false)
+                //mAdapter.notifyDataSetChanged()
             }
             itemView.setOnClickListener {
                 clickListener(inventory)
@@ -41,7 +43,7 @@ class InventoriesAdapter(private val mInventories: List<Inventory>, val clickLis
 
         val inflater = LayoutInflater.from(parent.context)
         val inventoryView: View = inflater.inflate(layout.inventory_row, parent, false)
-        return ViewHolder(inventoryView, parent.context )
+        return ViewHolder(inventoryView, parent.context,this)
     }
 
     override fun getItemCount(): Int {
@@ -57,6 +59,13 @@ class InventoriesAdapter(private val mInventories: List<Inventory>, val clickLis
             val helper = MyDBHandler(context,null,null, 1)
             helper.updateInventory(inventory)
             holder.bind(mInventories.get(position), clickListener)
+
+            if(mArchived){
+                mInventories = helper.getAllInventories()
+            }else{
+                mInventories = helper.getNotArchivedInventories()
+            }
+            notifyDataSetChanged()
         }
 
         holder.bind(mInventories.get(position), clickListener)

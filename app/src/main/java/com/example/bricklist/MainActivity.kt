@@ -24,15 +24,11 @@ class MainActivity : BaseActivity() {
         listInventories()
     }
 
-    fun readConfig(){
-        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-       // this.show_archived = preferences.getBoolean("show_archived", false)
-    }
 
     fun addNewInventory(v: View){
         val intent = Intent(this, AddInventoryActivity::class.java)
-        startActivity(intent)
-    }
+    startActivity(intent)
+}
 
     fun listInventories(){
 
@@ -47,7 +43,7 @@ class MainActivity : BaseActivity() {
             inventoryList = helper.getNotArchivedInventories()
         }
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view_inventories)
-        val adapter = InventoriesAdapter(inventoryList, { inventory : Inventory -> invenoryClicked(inventory) }, this)
+        val adapter = InventoriesAdapter(inventoryList, { inventory : Inventory -> invenoryClicked(inventory) }, this, preferences.getBoolean("show_archived", false))
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
         recyclerView.layoutManager = mLayoutManager
         recyclerView.setItemAnimator(DefaultItemAnimator())
