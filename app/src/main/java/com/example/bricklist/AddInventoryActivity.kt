@@ -2,6 +2,7 @@ package com.example.bricklist
 
 
 import android.R.attr.bitmap
+import android.app.AlertDialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -95,12 +96,28 @@ class AddInventoryActivity : AppCompatActivity() {
 
         downloadData(code)
 
-        addParts(inventoryID.toInt())
+        val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
+        if(notAdded.size > 0 ){
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("These parts could not be added:")
+
+            builder.setItems(notAdded.toTypedArray(), null)
+            builder.setPositiveButton("OK"){_,_ ->
+                finish()
+            }
+
+
+
+            val dialog = builder.create()
+            dialog.show()
+        }else{
+            finish()
+        }
 
     }
 
-    fun addParts(inventoryID: Int) {
-
+    fun addParts(inventoryID: Int):ArrayList<String> {
+        val notAddedParts = ArrayList<String>()
         val filename = "inventory.xml"
         val path = filesDir
         val inDir = File(path, "XML")
@@ -131,8 +148,7 @@ class AddInventoryActivity : AppCompatActivity() {
                             }
 
                         }
-                        println(itemType)
-                        println(itemID)
+
                         // TODO komunikat o nie istnieniu klocka i sprawdzenie
                         val itemTypeID = dbHandler.getTypeID(itemType)
                         val itemTableID = dbHandler.getItemID(itemID)
@@ -141,7 +157,10 @@ class AddInventoryActivity : AppCompatActivity() {
                             dbHandler.addInventoryPart(part)
                             val code = dbHandler.getPartCode(itemTableID, color)
                             //getImage(itemTableID, color, itemID)
-
+                        }
+                        else{
+                            val colorName = dbHandler.getColorName(color)
+                            notAddedParts.add("itemId: $itemID color: $colorName")
                         }
 
 
@@ -149,6 +168,7 @@ class AddInventoryActivity : AppCompatActivity() {
                 }
             }
         }
+        return notAddedParts
     }
 
     fun getImage(itemTableID: Int, color:Int, itemID:String) {

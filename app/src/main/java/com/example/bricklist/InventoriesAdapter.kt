@@ -28,10 +28,8 @@ class InventoriesAdapter(var mInventories: ArrayList<Inventory>, val clickListen
             nameTextView.setText(inventory.name)
             if(inventory.active == 1) {
                 archiveButton.setChecked(true)
-                //mAdapter.notifyDataSetChanged()
             }else{
                 archiveButton.setChecked(false)
-                //mAdapter.notifyDataSetChanged()
             }
             itemView.setOnClickListener {
                 clickListener(inventory)
@@ -67,7 +65,6 @@ class InventoriesAdapter(var mInventories: ArrayList<Inventory>, val clickListen
             }
             notifyDataSetChanged()
         }
-
         holder.bind(mInventories.get(position), clickListener)
     }
 }
