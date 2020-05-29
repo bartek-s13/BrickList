@@ -2,15 +2,32 @@ package com.example.bricklist
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.android.synthetic.main.inventory_row.*
 import java.util.*
+import javax.xml.parsers.DocumentBuilderFactory
 
 class InventoryActivity : AppCompatActivity() {
+
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        menuInflater.inflate(R.menu.save_menu, menu)
+        return true
+    }
+
+
+
+
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,10 +44,7 @@ class InventoryActivity : AppCompatActivity() {
         val inventory = helper.getInventoryById(inventoryID)
         inventory!!.lastAccessed = now
         helper.updateInventory(inventory)
-
-
         toolbar.setTitle(name)
-
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         listParts(inventoryID)
@@ -40,6 +54,10 @@ class InventoryActivity : AppCompatActivity() {
         val id = item.itemId
         if (id == android.R.id.home) {
             super.finish()
+        }
+        else if(id == R.id.action_save){
+            val toast = Toast.makeText(applicationContext, "Project saved to XML file", Toast.LENGTH_LONG)
+            toast.show()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -56,6 +74,12 @@ class InventoryActivity : AppCompatActivity() {
         recyclerView.setItemAnimator(DefaultItemAnimator())
         recyclerView.setAdapter(adapter)
 
+    }
+
+    fun writeXML(v: View) {
+        val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+        val doc = docBuilder.newDocument()
+        val rootElement = doc.createElement("INVENTORY")
     }
 
 }

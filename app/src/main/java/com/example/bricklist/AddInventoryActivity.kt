@@ -90,21 +90,64 @@ class AddInventoryActivity : AppCompatActivity() {
 
     }
 
+
+
+
+
+    private inner class Check:AsyncTask<String, Int, String>() {
+        var result:Boolean = false
+        override fun onPreExecute() {
+            super.onPreExecute()
+        }
+
+        override fun onPostExecute(result: String?) {
+            if(result=="true"){
+                this.result = true
+            }
+            super.onPostExecute(result)
+        }
+
+        override fun doInBackground(vararg params: String?): String {
+            try{
+                HttpURLConnection.setFollowRedirects(false);
+                val url = URL(params[0])
+                val con =  url.openConnection() as HttpURLConnection
+                con.setRequestMethod("HEAD")
+                if(con.getResponseCode()==200){
+                    this.result = true
+                    return "true"
+                }
+                else{
+                    this.result = false
+                    return "false"
+                }
+            }catch (e:Exception) {
+               // println(e)
+                //println("Wrong URL: ${params[0]}")
+
+                this.result = false
+                return "false"
+            }
+
+        }
+
+    }
+
+
+
+
+
     fun checkInventoryExists(code:String):Boolean{
-        try {
-            HttpURLConnection.setFollowRedirects(false);
-            val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-            val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
-            val url = URL(prefix + code +".xml")
-            val con =  url.openConnection() as HttpURLConnection
-            con.setRequestMethod("HEAD");
-            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
-        }
-        catch (e:Exception) {
-            val toast = Toast.makeText(applicationContext, "Wrong URL", Toast.LENGTH_LONG)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
+        val address = prefix + code +".xml"
+        val task = Check()
+        val x = task.execute(address).get()
+        if(task.result==false){
+            val toast = Toast.makeText(applicationContext, "Wrong URL: $address", Toast.LENGTH_LONG)
             toast.show()
-            return false;
         }
+        return task.result
     }
 
 
@@ -185,14 +228,9 @@ class AddInventoryActivity : AppCompatActivity() {
 
                     }
                 }
-                File("$filesDir/XML").deleteRecursively()
-            }
-            else{
-                val toast = Toast.makeText(applicationContext, "Project could not be added", Toast.LENGTH_LONG)
-                toast.show()
+
             }
         }
-
         return notAddedParts
     }
 
