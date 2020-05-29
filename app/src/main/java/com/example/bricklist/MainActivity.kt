@@ -57,7 +57,6 @@ class MainActivity : BaseActivity() {
 
     private fun invenoryClicked(inventory: Inventory){
         val intent = Intent(this, InventoryActivity::class.java)
-
         intent.putExtra("Name", inventory.name)
         intent.putExtra("Id", inventory.id)
         startActivity(intent)

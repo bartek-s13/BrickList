@@ -61,7 +61,7 @@ class MyDBHandler(context: Context, name: String?,
     }
 
     fun getAllInventories():ArrayList<Inventory>{
-        val query = "SELECT * FROM INVENTORIES ORDER BY LastAccessed"
+        val query = "SELECT * FROM INVENTORIES ORDER BY LastAccessed DESC"
         val db = this.readableDatabase
         val inventories =  ArrayList<Inventory>()
         val cursor = db.rawQuery(query, null)        //The sort order
@@ -82,7 +82,7 @@ class MyDBHandler(context: Context, name: String?,
     }
 
     fun getNotArchivedInventories():ArrayList<Inventory>{
-        val query = "SELECT * FROM INVENTORIES where active = 1 ORDER BY LastAccessed"
+        val query = "SELECT * FROM INVENTORIES where active = 1 ORDER BY LastAccessed DESC"
         val db = this.readableDatabase
         val inventories =  ArrayList<Inventory>()
         val cursor = db.rawQuery(query, null)        //The sort order
@@ -272,5 +272,25 @@ class MyDBHandler(context: Context, name: String?,
         values.put("LastAccessed", inventory.lastAccessed)
         db.update("Inventories", values,"id = ${inventory.id}" ,null)
         db.close()
+    }
+
+    fun getInventoryById(inventoryId:Int):Inventory?{
+        val query = "SELECT * FROM INVENTORIES where id = $inventoryId"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+        var inventory:Inventory? = null
+
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            val id = Integer.parseInt((cursor.getString(0)))
+            val name =  cursor.getString(1)
+            val active = Integer.parseInt((cursor.getString(2)))
+            val lastAccessed = Integer.parseInt((cursor.getString(3)))
+            inventory = Inventory(id, name, active, lastAccessed)
+
+        }
+
+        cursor.close()
+        db.close()
+        return inventory
     }
 }

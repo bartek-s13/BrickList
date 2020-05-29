@@ -115,28 +115,23 @@ class AddInventoryActivity : AppCompatActivity() {
         val code = findViewById<TextView>(R.id.code).getText().toString()
         val name = findViewById<TextView>(R.id.name).getText().toString()
         if(checkInventoryExists(code)){
-        val inventory = Inventory(name, 1, 0)
-        val inventoryID = dbHandler.addInventory(inventory)
+            val inventory = Inventory(name, 1, 0)
+            val inventoryID = dbHandler.addInventory(inventory)
+            downloadData(code)
+            val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
+            if(notAdded.size > 0 ){
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("These parts could not be added:")
 
-        downloadData(code)
-
-
-        val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
-
-        if(notAdded.size > 0 ){
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("These parts could not be added:")
-
-            builder.setItems(notAdded.toTypedArray(), null)
-            builder.setPositiveButton("OK"){_,_ ->
+                builder.setItems(notAdded.toTypedArray(), null)
+                builder.setPositiveButton("OK"){_,_ ->
+                    finish()
+                }
+                val dialog = builder.create()
+                dialog.show()
+            }else{
                 finish()
             }
-
-            val dialog = builder.create()
-            dialog.show()
-        }else{
-            finish()
-        }
         }
     }
 
