@@ -10,24 +10,24 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import java.io.File
 import java.util.*
 import javax.xml.parsers.DocumentBuilderFactory
+import javax.xml.transform.OutputKeys
+import javax.xml.transform.TransformerFactory
+import javax.xml.transform.dom.DOMSource
+import javax.xml.transform.stream.StreamResult
+import kotlin.collections.ArrayList
 
 class InventoryActivity : AppCompatActivity() {
 
-
+    lateinit var partsList:ArrayList<InventoryPart>
+    var inventory:Inventory? = null
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.save_menu, menu)
         return true
     }
-
-
-
-
-
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,9 +41,9 @@ class InventoryActivity : AppCompatActivity() {
 
         val cal = Calendar.getInstance()
         val now:Int = cal.getTimeInMillis().toInt()
-        val inventory = helper.getInventoryById(inventoryID)
-        inventory!!.lastAccessed = now
-        helper.updateInventory(inventory)
+        this.inventory = helper.getInventoryById(inventoryID)
+        this.inventory!!.lastAccessed = now
+        helper.updateInventory(this.inventory!!)
         toolbar.setTitle(name)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
@@ -56,6 +56,7 @@ class InventoryActivity : AppCompatActivity() {
             super.finish()
         }
         else if(id == R.id.action_save){
+            writeXML()
             val toast = Toast.makeText(applicationContext, "Project saved to XML file", Toast.LENGTH_LONG)
             toast.show()
         }
@@ -66,9 +67,9 @@ class InventoryActivity : AppCompatActivity() {
     fun listParts(invenotryID: Int){
         val helper = MyDBHandler(this,null,null, 1)
         helper.checkDB()
-        val partsList = helper.getInventoryParts(invenotryID)
+        this.partsList = helper.getInventoryParts(invenotryID)
         val recyclerView = findViewById<RecyclerView>(R.id.recycler_view_parts)
-        val adapter = PartsAdapter(partsList)
+        val adapter = PartsAdapter(this.partsList)
         val mLayoutManager: RecyclerView.LayoutManager = LinearLayoutManager(applicationContext)
         recyclerView.layoutManager = mLayoutManager
         recyclerView.setItemAnimator(DefaultItemAnimator())
@@ -76,10 +77,48 @@ class InventoryActivity : AppCompatActivity() {
 
     }
 
-    fun writeXML(v: View) {
+    fun writeXML() {
         val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val doc = docBuilder.newDocument()
         val rootElement = doc.createElement("INVENTORY")
+        val helper = MyDBHandler(this,null,null, 1)
+        this.partsList.forEach{
+            if(it.QuantityInSet>it.QuantityInStore) {
+                val item = doc.createElement("ITEM")
+
+                val type = helper.getType(it.TypeID)
+                val itemtype = doc.createElement("ITEMTYPE")
+                itemtype.appendChild(doc.createTextNode(type))
+                item.appendChild(itemtype)
+
+                val id = helper.getID(it.ItemID)
+                val itemID = doc.createElement("ITEMID")
+                itemID.appendChild(doc.createTextNode(id))
+                item.appendChild(itemID)
+
+                val color = doc.createElement("COLOR")
+                color.appendChild(doc.createTextNode(it.ColorID.toString()))
+                item.appendChild(color)
+
+                val qty = it.QuantityInSet - it.QuantityInStore
+                val qtyField = doc.createElement("QTYFILLED")
+                qtyField.appendChild(doc.createTextNode(qty.toString()))
+                item.appendChild(qtyField)
+
+                rootElement.appendChild(item)
+
+            }
+        }
+        doc.appendChild(rootElement)
+        val transformer = TransformerFactory.newInstance().newTransformer()
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes")
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
+        val path = this.filesDir
+        val outDir = File(path, "Output")
+        outDir.mkdir()
+        val file_name = this.inventory!!.name
+        val file = File(outDir, "$file_name.xml")
+        transformer.transform(DOMSource(doc), StreamResult(file))
     }
 
 }

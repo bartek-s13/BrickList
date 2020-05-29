@@ -64,7 +64,7 @@ class MyDBHandler(context: Context, name: String?,
         val query = "SELECT * FROM INVENTORIES ORDER BY LastAccessed DESC"
         val db = this.readableDatabase
         val inventories =  ArrayList<Inventory>()
-        val cursor = db.rawQuery(query, null)        //The sort order
+        val cursor = db.rawQuery(query, null)
         if (cursor.moveToFirst()) {
             do {
                 val id = Integer.parseInt((cursor.getString(0)))
@@ -72,7 +72,6 @@ class MyDBHandler(context: Context, name: String?,
                 val active = Integer.parseInt((cursor.getString(2)))
                 val lastAccessed = Integer.parseInt((cursor.getString(3)))
                 val inventory = Inventory(id, name, active, lastAccessed)
-
                 inventories.add(inventory)
             } while (cursor.moveToNext())
         }
@@ -109,7 +108,6 @@ class MyDBHandler(context: Context, name: String?,
         val cursor = db.rawQuery(query, null)        //The sort order
         if (cursor.moveToFirst()) {
             do {
-
                 val id = Integer.parseInt((cursor.getString(0)))
                 val InventoryID = Integer.parseInt((cursor.getString(1)))
                 val TypeID = Integer.parseInt((cursor.getString(2)))
@@ -160,16 +158,26 @@ class MyDBHandler(context: Context, name: String?,
         val query = "SELECT id FROM ItemTypes WHERE Code = \'$code\'"
         val db = this.readableDatabase
         var TypeID = -1
-
         val cursor = db.rawQuery(query, null)
         if(cursor.moveToFirst() && cursor.getCount() >= 1) {
             TypeID = Integer.parseInt((cursor.getString(0)))
         }
-
-
         cursor.close()
         db.close()
         return TypeID
+    }
+
+    fun getType(id:Int):String{
+        val query = "SELECT code FROM ItemTypes WHERE id = $id"
+        val db = this.readableDatabase
+        var code = ""
+        val cursor = db.rawQuery(query, null)
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            code = (cursor.getString(0))
+        }
+        cursor.close()
+        db.close()
+        return code
     }
 
     fun getItemID(code:String): Int{
@@ -179,6 +187,19 @@ class MyDBHandler(context: Context, name: String?,
         val cursor = db.rawQuery(query, null)
         if(cursor.moveToFirst() && cursor.getCount() >= 1) {
             ItemID = Integer.parseInt((cursor.getString(0)))
+        }
+        cursor.close()
+        db.close()
+        return ItemID
+    }
+
+    fun getID(itemID:Int):String{
+        val query = "select code from Parts where id = $itemID"
+        val db = this.readableDatabase
+        var ItemID = ""
+        val cursor = db.rawQuery(query, null)
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            ItemID = cursor.getString(0)
         }
         cursor.close()
         db.close()
