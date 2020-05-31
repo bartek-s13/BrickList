@@ -153,7 +153,7 @@ class AddInventoryActivity : AppCompatActivity() {
     }
 
     fun checkInventoryExists(v:View){
-        //TODO pobieranie kodu z pola
+
         val codeTextView = findViewById<TextView>(R.id.code)
         val code = codeTextView.text
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
@@ -166,42 +166,44 @@ class AddInventoryActivity : AppCompatActivity() {
             toast.show()
         }
         else{
-            //val button = findViewById<Button>(R.id.addButton)
-            val button = addButton
+            val button = findViewById<Button>(R.id.addButton)
             button.setEnabled(true)
         }
     }
 
     fun addInventory(v:View){
-        val progDailog = ProgressDialog(this)
-        progDailog.setMessage("Downloading...")
-        progDailog.show()
-        val dbHandler = MyDBHandler(this, null, null, 1)
-        val code = findViewById<TextView>(R.id.code).getText().toString()
-        val name = findViewById<TextView>(R.id.name).getText().toString()
+        val nameText = findViewById<TextView>(R.id.name)
+        println(nameText.text)
+        if(nameText.text.isEmpty()){
+            val toast = Toast.makeText(applicationContext, "Name cannot be blank", Toast.LENGTH_LONG)
+            toast.show()
+        }else{
+            val dbHandler = MyDBHandler(this, null, null, 1)
+            val code = findViewById<TextView>(R.id.code).getText().toString()
+            val name = findViewById<TextView>(R.id.name).getText().toString()
 
+            val inventory = Inventory(name, 1, 0)
 
-        val inventory = Inventory(name, 1, 0)
+            val inventoryID = dbHandler.addInventory(inventory)
+            downloadData(code)
 
-        val inventoryID = dbHandler.addInventory(inventory)
-        downloadData(code)
+            val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
 
-        val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
+            if(notAdded.size > 0 ){
+                val builder = AlertDialog.Builder(this)
+                builder.setTitle("These parts could not be added:")
 
-        progDailog.dismiss()
-        if(notAdded.size > 0 ){
-            val builder = AlertDialog.Builder(this)
-            builder.setTitle("These parts could not be added:")
-
-            builder.setItems(notAdded.toTypedArray(), null)
-            builder.setPositiveButton("OK"){_,_ ->
+                builder.setItems(notAdded.toTypedArray(), null)
+                builder.setPositiveButton("OK"){_,_ ->
+                    finish()
+                }
+                val dialog = builder.create()
+                dialog.show()
+            }else {
                 finish()
             }
-            val dialog = builder.create()
-            dialog.show()
-            }else {
-            finish()
         }
+
     }
 
     fun addParts(inventoryID: Int):ArrayList<String> {
