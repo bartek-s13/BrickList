@@ -41,6 +41,7 @@ class MyDBHandler(context: Context, name: String?,
         values.put("LastAccessed", inventory.lastAccessed)
         val db = this.writableDatabase
         val id = db.insert("Inventories", null, values)
+
         db.close()
         return id
     }
@@ -193,6 +194,7 @@ class MyDBHandler(context: Context, name: String?,
         return ItemID
     }
 
+
     fun getID(itemID:Int):String{
         val query = "select code from Parts where id = $itemID"
         val db = this.readableDatabase
@@ -218,6 +220,19 @@ class MyDBHandler(context: Context, name: String?,
         cursor.close()
         db.close()
         return colorName
+    }
+
+    fun getColorID(colorCode:Int):Int{
+        val query = "SELECT id FROM Colors WHERE code = $colorCode"
+        val db = this.readableDatabase
+        var colorID : Int = -1
+        val cursor = db.rawQuery(query, null)
+        if (cursor.moveToFirst()) {
+            colorID =Integer.parseInt(cursor.getString(0))
+        }
+        cursor.close()
+        db.close()
+        return colorID
     }
 
     fun getPartName(itemID:Int):String{
@@ -263,16 +278,45 @@ class MyDBHandler(context: Context, name: String?,
         return code
     }
 
-    fun addImage(image: ByteArray, code:Int){
+    fun checkInCodes(color:Int, id:Int):Boolean{
+        val query = "select id from Codes where colorid =$color and itemid = $id"
+        val db = this.readableDatabase
+        val cursor = db.rawQuery(query, null)
+        if(cursor.getCount() <=0) {
+            cursor.close()
+            db.close()
+            return false
+        }
+        cursor.close()
+        db.close()
+        return true
+    }
+
+    fun addRow(color:Int, id:Int){
         val db = this.writableDatabase
+
         val values = ContentValues()
-        values.put("Image", image)
-        db.update("Codes", values, "code = " + code, null)
+        values.put("ColorID", color)
+        values.put("ItemID", id)
+        val code = getID(id)
+        values.put("Code", code)
+        db.insert("Codes", null, values)
         db.close()
     }
 
-    fun getImage(code:Int):ByteArray?{
-        val query = "select image from Codes where code=$code"
+    fun addImage(image: ByteArray, color:Int, id:Int){
+        if(checkInCodes(color, id)==false){
+            addRow(color, id)
+        }
+        val db = this.writableDatabase
+        val values = ContentValues()
+        values.put("Image", image)
+        db.update("Codes", values, "colorid =$color and itemid = $id", null)
+        db.close()
+    }
+
+    fun getImage(color:Int, id:Int):ByteArray?{
+        val query = "select image from Codes where colorid =$color and itemid = $id"
         val db = this.readableDatabase
         var image:ByteArray? = null
         val cursor = db.rawQuery(query, null)
@@ -282,6 +326,19 @@ class MyDBHandler(context: Context, name: String?,
         cursor.close()
         db.close()
         return image
+    }
+
+    fun checkImage(code:Int):Boolean{
+        val query = "select image from Codes where code=$code"
+        val db = this.readableDatabase
+        var image:ByteArray? = null
+        val cursor = db.rawQuery(query, null)
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            image = cursor.getBlob(0)
+        }
+        cursor.close()
+        db.close()
+        return image == null
     }
 
     fun updateInventory(inventory:Inventory){

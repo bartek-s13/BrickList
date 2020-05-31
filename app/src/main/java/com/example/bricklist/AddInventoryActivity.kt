@@ -78,21 +78,15 @@ class AddInventoryActivity : AppCompatActivity() {
             }
             return "Success"
         }
-
-
     }
 
     fun downloadData(code: String){
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
         val invd= InventoryDownloader()
-        val x = invd.execute(prefix+code)
-
+        invd.execute(prefix+code).get()
+        println("koniec pobierania")
     }
-
-
-
-
 
     private inner class Check:AsyncTask<String, Int, String>() {
         var result:Boolean = false
@@ -122,22 +116,15 @@ class AddInventoryActivity : AppCompatActivity() {
                     return "false"
                 }
             }catch (e:Exception) {
-               // println(e)
-                //println("Wrong URL: ${params[0]}")
-
                 this.result = false
                 return "false"
             }
-
         }
-
     }
 
-
-
-
-
-    fun checkInventoryExists(code:String):Boolean{
+    fun checkInventoryExists(v:View):Boolean{
+        //TODO pobieranie kodu z pola
+        val code = ""
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
         val address = prefix + code +".xml"
@@ -150,32 +137,31 @@ class AddInventoryActivity : AppCompatActivity() {
         return task.result
     }
 
-
-
-
     fun addInventory(v:View){
         val dbHandler = MyDBHandler(this, null, null, 1)
         val code = findViewById<TextView>(R.id.code).getText().toString()
         val name = findViewById<TextView>(R.id.name).getText().toString()
-        if(checkInventoryExists(code)){
-            val inventory = Inventory(name, 1, 0)
-            val inventoryID = dbHandler.addInventory(inventory)
-            downloadData(code)
-            val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
-            if(notAdded.size > 0 ){
-                val builder = AlertDialog.Builder(this)
-                builder.setTitle("These parts could not be added:")
 
-                builder.setItems(notAdded.toTypedArray(), null)
-                builder.setPositiveButton("OK"){_,_ ->
-                    finish()
-                }
-                val dialog = builder.create()
-                dialog.show()
-            }else{
+
+        val inventory = Inventory(name, 1, 0)
+        val inventoryID = dbHandler.addInventory(inventory)
+        downloadData(code)
+        val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
+        if(notAdded.size > 0 ){
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("These parts could not be added:")
+
+            builder.setItems(notAdded.toTypedArray(), null)
+            builder.setPositiveButton("OK"){_,_ ->
                 finish()
             }
+            val dialog = builder.create()
+            dialog.show()
+            }else {
+            finish()
         }
+
+
     }
 
     fun addParts(inventoryID: Int):ArrayList<String> {
@@ -203,7 +189,7 @@ class AddInventoryActivity : AppCompatActivity() {
                             if (node is Element){
                                 when (node.nodeName){
                                     "ITEMTYPE" -> {itemType = node.textContent}
-                                    "ITEMID" -> {itemID = node.textContent}
+                                    "ITEMID" -> {itemID = node.textContent}  //code
                                     "QTY" -> {quantityInSet = node.textContent.toInt()}
                                     "COLOR" -> {color = node.textContent.toInt()}
                                 }
@@ -211,75 +197,102 @@ class AddInventoryActivity : AppCompatActivity() {
 
                         }
 
-                        // TODO komunikat o nie istnieniu klocka i sprawdzenie
                         val itemTypeID = dbHandler.getTypeID(itemType)
                         val itemTableID = dbHandler.getItemID(itemID)
                         if(itemTypeID!= -1 && itemTableID != -1){
-                            val part = InventoryPart(inventoryID, itemTypeID, itemTableID, quantityInSet, color)
+                            val colorid = dbHandler.getColorID(color)
+                            val part = InventoryPart(inventoryID, itemTypeID, itemTableID, quantityInSet, colorid)
                             dbHandler.addInventoryPart(part)
-                            val code = dbHandler.getPartCode(itemTableID, color)
-                            //getImage(itemTableID, color, itemID)
+
+                            val code = dbHandler.getPartCode(itemTableID, colorid)
+                            //getImage(itemTableID, color, itemID, code)
+                            //TODO check if image exists
+
+                            val imgDownloader = ImageDownloader()
+                            imgDownloader.execute(colorid.toString(), itemID, code.toString(), itemTableID.toString())
                         }
                         else{
-                            val colorName = dbHandler.getColorName(color)
+                            val colorid = dbHandler.getColorID(color)
+                            val colorName = dbHandler.getColorName(colorid)
                             notAddedParts.add("itemId: $itemID color: $colorName")
                         }
-
-
                     }
                 }
-
+                file.delete()
             }
         }
         return notAddedParts
     }
 
-    fun getImage(itemTableID: Int, color:Int, itemID:String) {
-        //FIXME
-        val dbHandler = MyDBHandler(this, null, null, 1)
-        var bmp: Bitmap
-        val code = dbHandler.getPartCode(itemTableID, color)
-       // val links = applicationContext.resources.getStringArray(R.array.links)
-        val links: ArrayList<String> = ArrayList<String>()
-        val link1 = getString(R.string.link1,code.toString())
-        val link2 = getString(R.string.link2,color.toString(), itemID)
-        val link3 = getString(R.string.link3,itemID)
-        println(link1)
-        println(link2)
-        println(link3)
-        println("------")
-        links.add(link1)
-        links.add(link2)
-        links.add(link3)
-        var responseCode = -1
-        links.forEach {
-            val url = URL(it)
-            val con = url.openConnection() as HttpURLConnection
-            con.doInput = true
-            con.connect()
-            responseCode = con.responseCode
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                println("HTTP OK dl $it")
-                try {
-                    println("HTTP OK dl $it")
-                    val inputStream = con.inputStream
-                    bmp = BitmapFactory.decodeStream(inputStream)
-                    inputStream.close()
-
-                    val stream = ByteArrayOutputStream()
-                    bmp.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                    val byteArray = stream.toByteArray()
-
-                    //FIXME
-                    //TODO
-                    //dbHandler.addImage(byteArray, code)
-                }catch(e:Exception){}
-            }
+    private inner class ImageDownloader:AsyncTask<String, Int, String>() {
+        override fun onPreExecute() {
+            super.onPreExecute()
         }
 
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+        }
+
+        override fun doInBackground(vararg params: String?): String {
+            // color, itemID, code, itemTableID
+            var bmp: Bitmap
+
+            val links: ArrayList<String> = ArrayList<String>()
+            val link1 = getString(R.string.link1, params[2])
+            val link2 = getString(R.string.link2, params[0], params[1])
+            val link3 = getString(R.string.link3, params[1])
+
+
+            links.add(link1)
+            links.add(link2)
+            links.add(link3)
+
+            links.forEach {
+                try{
+
+                    val url = URL(it)
+                    val connection = url.openConnection()
+                    connection.connect()
+                    val lenghtOfFile = connection.contentLength
+                    val isStream = url.openStream()
+                    val data = ByteArray(1024)
+                    val image = ByteArrayOutputStream();
+                    var count = 0
+                    var total: Long = 0
+                    var progress = 0
+                    count = isStream.read(data)
+                    while(count!=-1){
+                        total+=count.toLong()
+                        val progress_tmp = total.toInt()*100/lenghtOfFile
+                        if(progress_tmp % 10 == 0 && progress != progress_tmp){
+                            progress = progress_tmp
+                        }
+                        image.write(data, 0, count)
+                        count = isStream.read(data)
+                    }
+                    isStream.close()
+                    image.close()
+
+                    val img = BitmapFactory.decodeByteArray(image.toByteArray(),0, image.toByteArray().size)
+                    addImage(img,params[0]!!, params[3]!!)
+                    return "Success"
+                }catch(e:Exception){
+                    //println("Error for $it")
+                }
+            }
+            //TODO add default image
+
+            return "Error"
+        }
     }
 
-
-
+    fun addImage(img:Bitmap, color: String, id:String){
+        val dbHandler = MyDBHandler(this, null, null, 1)
+        val bos = ByteArrayOutputStream()
+        img.compress(Bitmap.CompressFormat.PNG,100, bos)
+        val bArray = bos.toByteArray()
+        bos.close()
+        dbHandler.addImage(bArray, color.toInt(), id.toInt())
+    }
 }
 

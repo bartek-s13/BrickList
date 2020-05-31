@@ -7,10 +7,7 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 
 class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.Adapter<PartsAdapter.ViewHolder>()  {
@@ -24,6 +21,7 @@ class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.A
         public  val iView = itemView.findViewById<ImageView>(R.id.imageView)
         val addButton = itemView.findViewById<Button>(R.id.add)
         val subButton = itemView.findViewById<Button>(R.id.sub)
+        val row = itemView.findViewById<TableRow>(R.id.p_row)
 
 
         fun bind(name:String, colorName:String, qtyStore:Int, qtySet:Int, img: Bitmap?)
@@ -36,9 +34,11 @@ class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.A
             }
             if(qtySet == qtyStore){
                 qtyTextView.setTextColor(Color.GREEN)
+                row.setBackgroundColor(0x804CAF50.toInt())
             }
             else{
                 qtyTextView.setTextColor(Color.RED)
+                row.setBackgroundColor(Color.WHITE)
             }
         }
     }
@@ -59,12 +59,12 @@ class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.A
         val helper = MyDBHandler(this.context,null,null, 1)
         val name = helper.getPartName(part.ItemID)
         val colorName = helper.getColorName(part.ColorID)
-        val code = helper.getPartCode(part.ItemID, part.ColorID)
-        val image = helper.getImage(code)
+
+
+        val image = helper.getImage(part.ColorID, part.ItemID)
         var img: Bitmap? = null
         image?.let{
             val bmp = BitmapFactory.decodeByteArray(it, 0, it.size)
-            //img = BitmapFactory.decodeByteArray(byteArray, 0 ,byteArray.length)
             img = bmp
         }
         holder.addButton.setOnClickListener{
