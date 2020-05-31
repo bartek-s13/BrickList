@@ -1,18 +1,23 @@
 package com.example.bricklist
 
 
-import android.R.attr.bitmap
+
+
 import android.app.AlertDialog
-import android.content.Context
+import android.app.ProgressDialog
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.AsyncTask
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
+import kotlinx.android.synthetic.main.activity_add_inventory.*
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -22,25 +27,50 @@ import java.lang.Exception
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
-import java.nio.ByteBuffer
-import java.nio.file.Files
-import java.nio.file.Paths
 import javax.xml.parsers.DocumentBuilderFactory
 
 
 class AddInventoryActivity : AppCompatActivity() {
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContentView(R.layout.activity_add_inventory)
+        val button = findViewById<Button>(R.id.addButton)
+        button.setEnabled(false)
+        val codeTextView = findViewById<TextView>(R.id.code)
+        codeTextView.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+                button.setEnabled(false)
+            }
+
+            override fun beforeTextChanged(s: CharSequence, start: Int,
+                                           count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence, start: Int,
+                                       before: Int, count: Int) {
+            }
+        })
+
+
+
     }
 
     private inner class InventoryDownloader:AsyncTask<String, Int, String>(){
+
+
+
         override fun onPreExecute() {
             super.onPreExecute()
+
         }
 
         override fun onPostExecute(result: String?) {
+
             super.onPostExecute(result)
         }
 
@@ -55,7 +85,7 @@ class AddInventoryActivity : AppCompatActivity() {
                 if(!testDirectory.exists()) testDirectory.mkdir()
                 val fos = FileOutputStream("$testDirectory/inventory.xml")
                 val data = ByteArray(1024)
-                var count =0
+                var count = 0
                 var total: Long = 0
                 var progress = 0
                 count = isStream.read(data)
@@ -80,12 +110,12 @@ class AddInventoryActivity : AppCompatActivity() {
         }
     }
 
+
     fun downloadData(code: String){
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
         val invd= InventoryDownloader()
         invd.execute(prefix+code).get()
-        println("koniec pobierania")
     }
 
     private inner class Check:AsyncTask<String, Int, String>() {
@@ -122,9 +152,10 @@ class AddInventoryActivity : AppCompatActivity() {
         }
     }
 
-    fun checkInventoryExists(v:View):Boolean{
+    fun checkInventoryExists(v:View){
         //TODO pobieranie kodu z pola
-        val code = ""
+        val codeTextView = findViewById<TextView>(R.id.code)
+        val code = codeTextView.text
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val prefix = preferences.getString("url_pref", getString(R.string.URL_prefix))
         val address = prefix + code +".xml"
@@ -134,19 +165,30 @@ class AddInventoryActivity : AppCompatActivity() {
             val toast = Toast.makeText(applicationContext, "Wrong URL: $address", Toast.LENGTH_LONG)
             toast.show()
         }
-        return task.result
+        else{
+            //val button = findViewById<Button>(R.id.addButton)
+            val button = addButton
+            button.setEnabled(true)
+        }
     }
 
     fun addInventory(v:View){
+        val progDailog = ProgressDialog(this)
+        progDailog.setMessage("Downloading...")
+        progDailog.show()
         val dbHandler = MyDBHandler(this, null, null, 1)
         val code = findViewById<TextView>(R.id.code).getText().toString()
         val name = findViewById<TextView>(R.id.name).getText().toString()
 
 
         val inventory = Inventory(name, 1, 0)
+
         val inventoryID = dbHandler.addInventory(inventory)
         downloadData(code)
+
         val notAdded:ArrayList<String> = addParts(inventoryID.toInt())
+
+        progDailog.dismiss()
         if(notAdded.size > 0 ){
             val builder = AlertDialog.Builder(this)
             builder.setTitle("These parts could not be added:")
@@ -160,8 +202,6 @@ class AddInventoryActivity : AppCompatActivity() {
             }else {
             finish()
         }
-
-
     }
 
     fun addParts(inventoryID: Int):ArrayList<String> {
@@ -170,6 +210,7 @@ class AddInventoryActivity : AppCompatActivity() {
         val path = filesDir
         val inDir = File(path, "XML")
         val dbHandler = MyDBHandler(this, null, null, 1)
+
         if (inDir.exists()){
             val file = File(inDir, filename)
             if(file.exists()){
@@ -194,7 +235,6 @@ class AddInventoryActivity : AppCompatActivity() {
                                     "COLOR" -> {color = node.textContent.toInt()}
                                 }
                             }
-
                         }
 
                         val itemTypeID = dbHandler.getTypeID(itemType)
@@ -218,9 +258,9 @@ class AddInventoryActivity : AppCompatActivity() {
                         }
                     }
                 }
-                file.delete()
             }
         }
+
         return notAddedParts
     }
 
