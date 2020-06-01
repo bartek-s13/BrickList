@@ -301,10 +301,9 @@ class MyDBHandler(context: Context, name: String?,
 
     fun addRow(color:Int, id:Int){
         val values = ContentValues()
-        val code = getID(id)
         values.put("ColorID", color)
         values.put("ItemID", id)
-        values.put("Code", code)
+        values.put("Code", "-1")
         val db = this.writableDatabase
         val i = db.insert("codes", null, values)
         db.close()

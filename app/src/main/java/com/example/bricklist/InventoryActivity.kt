@@ -103,8 +103,6 @@ class InventoryActivity : AppCompatActivity() {
         }
         else if(id == R.id.action_save){
             writeXML()
-            val toast = Toast.makeText(applicationContext, "Project saved to XML file", Toast.LENGTH_LONG)
-            toast.show()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -195,6 +193,8 @@ class InventoryActivity : AppCompatActivity() {
         val file_name = this.inventory!!.name
         val file = File(outDir, "$file_name.xml")
         transformer.transform(DOMSource(doc), StreamResult(file))
+        val toast = Toast.makeText(applicationContext, "Project saved to the memory card", Toast.LENGTH_LONG)
+        toast.show()
     }
 
 }
