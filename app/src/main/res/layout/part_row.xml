@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_weight="2"
         android:animationCache="false"
-        android:background="#804CAF50">
+        android:background="#00FFFFFF">
 
         <TableLayout
             android:layout_width="0dip"
@@ -94,6 +94,7 @@
 
         <Button
             android:id="@+id/sub"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.9"
@@ -109,6 +110,7 @@
 
         <Button
             android:id="@+id/add"
+            style="@style/Widget.AppCompat.Button.Borderless"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.9"

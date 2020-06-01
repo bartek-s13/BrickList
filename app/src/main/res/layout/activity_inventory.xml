@@ -32,5 +32,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_begin="56dp" />
+        app:layout_constraintGuide_begin="100dp" />
+
+    <Spinner
+        android:id="@+id/color_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/recycler_view_parts"
+        app:layout_constraintEnd_toStartOf="@+id/type_spinner"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Spinner
+        android:id="@+id/type_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/recycler_view_parts"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/color_spinner" />
 </androidx.constraintlayout.widget.ConstraintLayout>

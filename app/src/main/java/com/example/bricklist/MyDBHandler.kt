@@ -41,7 +41,6 @@ class MyDBHandler(context: Context, name: String?,
         values.put("LastAccessed", inventory.lastAccessed)
         val db = this.writableDatabase
         val id = db.insert("Inventories", null, values)
-
         db.close()
         return id
     }
@@ -58,7 +57,6 @@ class MyDBHandler(context: Context, name: String?,
         val db = this.writableDatabase
         db.insert("InventoriesParts", null, values)
         db.close()
-
     }
 
     fun getAllInventories():ArrayList<Inventory>{
@@ -93,7 +91,6 @@ class MyDBHandler(context: Context, name: String?,
                 val active = Integer.parseInt((cursor.getString(2)))
                 val lastAccessed = Integer.parseInt((cursor.getString(3)))
                 val inventory = Inventory(id, name, active, lastAccessed)
-
                 inventories.add(inventory)
             } while (cursor.moveToNext())
         }
@@ -154,7 +151,6 @@ class MyDBHandler(context: Context, name: String?,
         }
     }
 
-
     fun getTypeID(code:String): Int{
         val query = "SELECT id FROM ItemTypes WHERE Code = \'$code\'"
         val db = this.readableDatabase
@@ -193,6 +189,7 @@ class MyDBHandler(context: Context, name: String?,
         db.close()
         return ItemID
     }
+
 
 
     fun getID(itemID:Int):String{
@@ -236,7 +233,6 @@ class MyDBHandler(context: Context, name: String?,
     }
 
     fun getPartName(itemID:Int):String{
-
         val query = "SELECT name FROM Parts WHERE id= $itemID"
         var name: String = ""
         val db = this.readableDatabase
@@ -247,6 +243,19 @@ class MyDBHandler(context: Context, name: String?,
         cursor.close()
         db.close()
         return name
+    }
+
+    fun getItemIDbyName(name:String): Int{
+        val query = "select id from Parts where Name = \'$name\'"
+        val db = this.readableDatabase
+        var ItemID = -1
+        val cursor = db.rawQuery(query, null)
+        if(cursor.moveToFirst() && cursor.getCount() >= 1) {
+            ItemID = Integer.parseInt((cursor.getString(0)))
+        }
+        cursor.close()
+        db.close()
+        return ItemID
     }
 
     fun updatePart(part:InventoryPart){
@@ -262,8 +271,6 @@ class MyDBHandler(context: Context, name: String?,
         db.update("InventoriesParts", values, "id = " + part.id, null)
         db.close()
     }
-
-
 
     fun getPartCode(itemID:Int, colorId:Int):Int{
         val query = "select code from Codes where ItemID = $itemID and ColorID = $colorId"
@@ -293,14 +300,13 @@ class MyDBHandler(context: Context, name: String?,
     }
 
     fun addRow(color:Int, id:Int){
-        val db = this.writableDatabase
-
         val values = ContentValues()
+        val code = getID(id)
         values.put("ColorID", color)
         values.put("ItemID", id)
-        val code = getID(id)
         values.put("Code", code)
-        db.insert("Codes", null, values)
+        val db = this.writableDatabase
+        val i = db.insert("codes", null, values)
         db.close()
     }
 
@@ -328,8 +334,8 @@ class MyDBHandler(context: Context, name: String?,
         return image
     }
 
-    fun checkImage(code:Int):Boolean{
-        val query = "select image from Codes where code=$code"
+    fun checkImage(color:Int, id:Int):Boolean{
+        val query = "select image from Codes where colorid =$color and itemid = $id"
         val db = this.readableDatabase
         var image:ByteArray? = null
         val cursor = db.rawQuery(query, null)
@@ -357,18 +363,28 @@ class MyDBHandler(context: Context, name: String?,
         val db = this.readableDatabase
         val cursor = db.rawQuery(query, null)
         var inventory:Inventory? = null
-
         if(cursor.moveToFirst() && cursor.getCount() >= 1) {
             val id = Integer.parseInt((cursor.getString(0)))
             val name =  cursor.getString(1)
             val active = Integer.parseInt((cursor.getString(2)))
             val lastAccessed = Integer.parseInt((cursor.getString(3)))
             inventory = Inventory(id, name, active, lastAccessed)
-
         }
-
         cursor.close()
         db.close()
         return inventory
+    }
+
+    fun getColorIDbyName(name:String):Int{
+        val query = "SELECT id FROM Colors WHERE name = \'$name\'"
+        val db = this.readableDatabase
+        var colorID : Int = -1
+        val cursor = db.rawQuery(query, null)
+        if (cursor.moveToFirst()) {
+            colorID =Integer.parseInt(cursor.getString(0))
+        }
+        cursor.close()
+        db.close()
+        return colorID
     }
 }

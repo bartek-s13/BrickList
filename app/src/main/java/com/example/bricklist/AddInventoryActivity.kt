@@ -11,13 +11,14 @@ import android.os.AsyncTask
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.preference.PreferenceManager
-import kotlinx.android.synthetic.main.activity_add_inventory.*
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -31,9 +32,6 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 
 class AddInventoryActivity : AppCompatActivity() {
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -55,22 +53,26 @@ class AddInventoryActivity : AppCompatActivity() {
                                        before: Int, count: Int) {
             }
         })
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
 
-
-
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val id = item.itemId
+        if (id == android.R.id.home) {
+            super.finish()
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private inner class InventoryDownloader:AsyncTask<String, Int, String>(){
 
-
-
         override fun onPreExecute() {
             super.onPreExecute()
-
         }
 
         override fun onPostExecute(result: String?) {
-
             super.onPostExecute(result)
         }
 
@@ -247,8 +249,6 @@ class AddInventoryActivity : AppCompatActivity() {
                             dbHandler.addInventoryPart(part)
 
                             val code = dbHandler.getPartCode(itemTableID, colorid)
-                            //getImage(itemTableID, color, itemID, code)
-                            //TODO check if image exists
 
                             val imgDownloader = ImageDownloader()
                             imgDownloader.execute(colorid.toString(), itemID, code.toString(), itemTableID.toString())

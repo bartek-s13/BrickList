@@ -10,7 +10,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.recyclerview.widget.RecyclerView
 
-class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.Adapter<PartsAdapter.ViewHolder>()  {
+class PartsAdapter(private val parts: List<InventoryPart>) : RecyclerView.Adapter<PartsAdapter.ViewHolder>()  {
 
     lateinit var context: Context
 
@@ -38,7 +38,7 @@ class PartsAdapter(private val parts: ArrayList<InventoryPart>) : RecyclerView.A
             }
             else{
                 qtyTextView.setTextColor(Color.RED)
-                row.setBackgroundColor(Color.WHITE)
+                row.setBackgroundColor(0x00FFFFFF)
             }
         }
     }
